@@ -1,0 +1,924 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+    <title>Autodesk Forge Viewer Node.js Extractor example (local view)</title>
+    <meta content="Autodesk Forge Viewer Node.js Extractor example" name="description" />
+    <meta content="Extractor Node.js Forge Viewer" name="keywords" />
+    <meta content="Autodesk" name="author" />
+
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+
+    <!-- External libraries -->
+    <script src="./jquery.min.js"></script><!-- jquery.js -->
+    <script src="./jquery-ui.min.js"></script> <!-- http://jqueryui.com/ -->
+
+    <!-- Autodesk Forge Viewer -->
+    <link href="./style.min.css" rel="stylesheet" />
+	<script src="./three.min.js"></script>
+    <!-- <script src="./viewer3D.min.js"></script> -->
+	<script src="https://developer.api.autodesk.com/viewingservice/v1/viewers/viewer3D.min.js?v=3.1.1"></script>
+
+    <!-- Our scripts -->
+    <style>
+        /* Reset */
+        body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { margin: 0; padding: 0; }
+        table { border-collapse: collapse; border-spacing: 0; }
+        fieldset, img { border: 0; }
+        address, caption, cite, code, dfn, th, var { font-style: normal; font-weight: normal; }
+        ol, ul { list-style: none; }
+        caption, th { text-align: left; }
+        h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal; }
+        q:before, q:after { content: ''; }
+        abbr, acronym { border: 0; }
+
+        /* Baseline */
+        body, p, h1, h2, h3, h4, h5, h6 { font: normal 12px/1.3em Helvetica, Arial, sans-serif; color: #333; }
+        h1 { font-size: 22px; font-weight: bold; }
+        h2 { font-size: 19px; font-weight: bold; }
+        h3 { font-size: 16px; font-weight: bold; }
+        h4 { font-size: 14px; font-weight: bold; }
+        h5 { font-size: 12px; font-weight: bold; }
+        p { margin: 10px 0; }
+
+        body { text-align: center; margin: 40px; }
+
+        .left { float: left; }
+        .right { float: right; }
+        .clear { clear: both; }
+
+        div#project { margin: 0 auto; width: 100%; text-align: left; }
+        div#viewer {  height: 700px; cursor: pointer; padding: 0px; margin-bottom: 20px; position: relative; overflow: hidden;
+            background-color: #eee; border: 2px dashed #aaa; border-radius: 10px; }
+        div#footer { margin: 0 auto; width: 100%; text-align: left; }
+        div#list { width: 300px; height: 700px; padding: 15px; position:relative;
+            background-color: #eee; border: 2px dashed #aaa; border-radius: 10px;
+	        overflow: auto; font-size:15px;}
+
+        div#list div button {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #44c767), color-stop(1, #5cbf2a));
+            background:-moz-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+            background:-webkit-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+            background:-o-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+            background:-ms-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+            background:linear-gradient(to bottom, #44c767 5%, #5cbf2a 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#44c767', endColorstr='#5cbf2a',GradientType=0);
+            background-color:#44c767;
+            -moz-border-radius:12px;
+            -webkit-border-radius:12px;
+            border-radius:12px;
+            border:1px solid #18ab29;
+            display:inline-block;
+            cursor:pointer;
+            color:#ffffff;
+            font-family:Verdana;
+            font-size:12px;
+
+            text-decoration:none;
+            text-shadow:0px 1px 0px #2f6627;
+            margin: 2px;
+	        /*height: 42px;*/height: 212px;
+            width: 170px;
+        }
+        div#list div button:hover {
+            background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #5cbf2a), color-stop(1, #44c767));
+            background:-moz-linear-gradient(top, #5cbf2a 5%, #44c767 100%);
+            background:-webkit-linear-gradient(top, #5cbf2a 5%, #44c767 100%);
+            background:-o-linear-gradient(top, #5cbf2a 5%, #44c767 100%);
+            background:-ms-linear-gradient(top, #5cbf2a 5%, #44c767 100%);
+            background:linear-gradient(to bottom, #5cbf2a 5%, #44c767 100%);
+            filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cbf2a', endColorstr='#44c767',GradientType=0);
+            background-color:#5cbf2a;
+        }
+        div#list div button:active { position:relative; top:1px; }
+
+        div#list div button div img { width: 150px; }
+    </style>
+
+    <script>
+        //var docs = [{"path":"./Resource/3D View/{3D} 314318/{3D}.svf","name":"{3D}"}];
+		//var docs = [{"path":"./Resource/utuc/3d.svf","name":"{utuc}"}];
+		//var docs = [{"path":"./Resource/xinjiang/3d.svf","name":"{xinjiang}"}];
+		var docs = [{"path":"./Resource/HKbuilding/3d.svf","name":"{HKbuilding}"}];
+
+		import { LoadingManager } from 'three';
+		import URDFLoader from 'urdf-loader';
+
+        var oViewer =null ;
+		var viewerType = null;
+		var view_h;
+
+		function viewer_ui (){
+			viewerType = true;
+		}
+
+		function viewer_no_ui (){
+			viewerType = false;
+		}
+		 
+		function viewer_plain (){
+				oViewer =new Autodesk.Viewing.Viewer3D ($("#viewer") [0], {}) ; // No toolbar
+				
+				$(document).ready (function () {
+					//var options ={ 'document': '', 'env': 'AutodeskProduction' } ;
+					var options ={ 'docid': docs [0].path, env: 'Local' } ;
+
+					//oViewer =new Autodesk.Viewing.Viewer3D ($("#viewer") [0], {}) ; // No toolbar
+					//oViewer =new Autodesk.Viewing.Private.GuiViewer3D ($("#viewer") [0], {}) ; // With toolbar           					
+						
+					Autodesk.Viewing.Initializer (options, function () {
+						oViewer.initialize () ;
+						oViewer.addEventListener (Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function (event) {
+							//oViewer.removeEventListener (Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee) ;
+							const MyGlobalOffset=event.model.getData().globalOffset;
+							console.log(MyGlobalOffset);//��֤�Ƿ�ʹ��GIS����ϵ�ɹ���
+							oViewer.fitToView (true) ;
+							setTimeout (function () { oViewer.autocam.setHomeViewFrom (oViewer.navigation.getCamera ()) ; }, 1000) ;
+						}) ;
+
+						oViewer.addEventListener (Autodesk.Viewing.SELECTION_CHANGED_EVENT, function (event){
+							var dbid=event.dbIdArray[0];
+							document.getElementById("dbid").value = dbid;
+						});
+
+						//����ʹ��GIS����
+						const modelOpts={
+							applyRefPoint: true,
+							globalOffset: {x:0,y:0,z:0}
+						};
+						oViewer.loadModel (options.docid, modelOpts) ;	
+					});
+									   
+				});									   
+		};
+
+		function viewer_gui (){
+				oViewer =new Autodesk.Viewing.Private.GuiViewer3D ($("#viewer") [0], {}) ; // With toolbar
+				
+				$(document).ready (function () {
+					//var options ={ 'document': '', 'env': 'AutodeskProduction' } ;
+					var options ={ 'docid': docs [0].path, env: 'Local' } ;
+
+					//oViewer =new Autodesk.Viewing.Viewer3D ($("#viewer") [0], {}) ; // No toolbar
+					//oViewer =new Autodesk.Viewing.Private.GuiViewer3D ($("#viewer") [0], {}) ; // With toolbar           					
+						
+					Autodesk.Viewing.Initializer (options, function () {
+						oViewer.initialize () ;
+						oViewer.addEventListener (Autodesk.Viewing.GEOMETRY_LOADED_EVENT, function (event) {
+							//oViewer.removeEventListener (Autodesk.Viewing.GEOMETRY_LOADED_EVENT, arguments.callee) ;
+							const MyGlobalOffset=event.model.getData().globalOffset;
+							console.log(MyGlobalOffset);//��֤�Ƿ�ʹ��GIS����ϵ�ɹ���
+							oViewer.fitToView (true) ;
+							setTimeout (function () { oViewer.autocam.setHomeViewFrom (oViewer.navigation.getCamera ()) ; }, 1000) ;
+						}) ;
+						
+						oViewer.addEventListener (Autodesk.Viewing.SELECTION_CHANGED_EVENT, function (event){
+							var dbid=event.dbIdArray[0];
+							document.getElementById("dbid").value = dbid;
+						});
+						
+						//����ʹ��GIS����
+						const modelOpts={
+							applyRefPoint: true,
+							globalOffset: {x:0,y:0,z:0}
+						};
+						oViewer.loadModel (options.docid, modelOpts) ;	
+						
+					});
+									   
+				});									   
+		};
+
+		function my_viewer_ini (){
+			
+			var w = document.getElementById("viewer_width").value;
+			var h = document.getElementById("viewer_height").value;
+			view_h = (w/h)*700;
+
+			document.getElementById("viewer").style.width = view_h+"px";
+
+			if (viewerType) {
+				viewer_gui ();
+			}else if (viewerType == false){
+				viewer_plain ();
+			}
+
+		}
+
+		function pro_perspec (){
+			oViewer.navigation.toPerspective();
+		}
+
+		function pro_ortho (){
+			oViewer.navigation.toOrthographic();
+		}
+
+		function ground_shadow_on (){
+			oViewer.setGroundShadow(true);
+		}
+
+		function ground_shadow_off (){
+			oViewer.setGroundShadow(false);
+		}
+
+		function ghost_off (){
+			oViewer.setGhosting(false);
+		}
+
+		function ghost_on (){
+			oViewer.setGhosting(true);
+		}
+
+		function chang_opt_para (){
+		    //document.styleSheets[1].cssRules[21].cssText=document.styleSheets[1].cssRules[21].cssText.replace("width: 936px;","width: 1200px;");id="viewer" class="left"
+			
+			oViewer.navigation.setFocalLength(document.getElementById("focal_length").value);		
+		}
+			
+
+		function getWorld3dCoor (){
+			var clientX = parseFloat(document.getElementById("pixelX").value);  //�����viewer���Ͻ���������
+			var clientY = parseFloat(document.getElementById("pixelY").value);  //�����viewer���Ͻ���������
+			var results = oViewer.clientToWorld(clientX,clientY,false).intersectPoint;
+			document.getElementById("3dX").value = 0.3048*results.x;
+			document.getElementById("3dY").value = 0.3048*results.y;
+			document.getElementById("3dZ").value = 0.3048*results.z;
+			console.log(results);
+		}
+
+		//������target��camUP�ĺ�����ע�������x��y��alt����ת��BIM����ϵ(��λΪfeet)��yawΪ����������˳ʱ��ǣ�Ҳ��Ҫת����BIM���꣬pitch�����Ǹ���
+		function calTargetUp (x,y,alt,yaw,pitch){
+			
+			//�������λʸ��
+            var sight={};
+			var UAVyaw=yaw;//�õ�UAVƫ����
+			var gimPitch=pitch;//�õ���̨gimbal������
+			sight.x=Math.cos(Math.PI*gimPitch/180)*Math.cos(Math.PI/2-Math.PI*UAVyaw/180);
+			sight.y=Math.cos(Math.PI*gimPitch/180)*Math.sin(Math.PI/2-Math.PI*UAVyaw/180);
+			sight.z=Math.sin(Math.PI*gimPitch/180);	
+			
+			//�����UpVector���
+            var CamUpX=Math.cos(Math.PI*(90+gimPitch)/180)*Math.cos(Math.PI/2-Math.PI*UAVyaw/180);
+			var CamUpY=Math.cos(Math.PI*(90+gimPitch)/180)*Math.sin(Math.PI/2-Math.PI*UAVyaw/180);
+			var CamUpZ=Math.sin(Math.PI*(90+gimPitch)/180);
+
+            //Ŀ���target��⡪������������ܵ�ƽ����;            
+			var PosX=x;
+			var PosY=y;
+			var PosZ=alt;
+			var TarX;
+			var TarY;
+			var TarZ;
+
+			if (sight.z==0)
+			{
+			  TarX=PosX+1000*Math.cos(Math.PI/2-Math.PI*UAVyaw/180);
+			  TarY=PosY+1000*Math.sin(Math.PI/2-Math.PI*UAVyaw/180);
+              TarZ=PosZ;
+			  
+			} else if (sight.z < 0) {
+			  var z = -10*3.281;
+			  TarX=PosX+sight.x*(z-PosZ)/sight.z;
+			  TarY=PosY+sight.y*(z-PosZ)/sight.z;
+              TarZ=z;
+			}else if (sight.z > 0) {
+			  var z = 30*3.281;
+			  TarX=PosX+sight.x*(z-PosZ)/sight.z;
+			  TarY=PosY+sight.y*(z-PosZ)/sight.z;
+              TarZ=z;
+			}
+			return {TarX:TarX, TarY:TarY, TarZ:TarZ, CamUpX:CamUpX, CamUpY:CamUpY, CamUpZ:CamUpZ};
+		}
+
+		function myNavi (){
+			var PosX = parseFloat(document.getElementById("posx").value);
+			var PosY = parseFloat(document.getElementById("posy").value);
+			var PosZ = parseFloat(document.getElementById("posz").value);
+			var yaw  = parseFloat(document.getElementById("yaw").value);
+			var pitch = parseFloat(document.getElementById("pitch").value);
+			
+			var tarUp = calTargetUp (3.281*PosX,3.281*PosY,3.281*PosZ,yaw,pitch);
+
+			const Pos = new THREE.Vector3(3.281*PosX,3.281*PosY,3.281*PosZ);
+			const Tar = new THREE.Vector3(tarUp.TarX,tarUp.TarY,tarUp.TarZ);
+			const Up = new THREE.Vector3(tarUp.CamUpX,tarUp.CamUpY,tarUp.CamUpZ);
+
+			console.log(Pos);
+			console.log(Tar);
+			console.log(Up);
+			
+			oViewer.navigation.setPosition(Pos);
+			oViewer.navigation.setTarget(Tar);
+			oViewer.navigation.setCameraUpVector(Up);
+		}
+
+		function hideElement (){
+			oViewer.hideById(parseFloat(document.getElementById("hide").value));
+		}
+
+		function getImageBlob(url, cb) {
+			var xhr = new XMLHttpRequest();
+			xhr.open("get", url, true);
+			xhr.responseType = "blob";
+			xhr.onload = function() {
+				if (this.status == 200) {
+					if(cb) {cb(this.response)};					
+				}
+			};
+			xhr.send();
+		}
+		
+		function preView(url){
+			let reader = new FileReader();
+
+			getImageBlob(url, function(blob){
+				reader.readAsDataURL(blob);
+			});
+
+			reader.onload = function(e) {
+				var img = document.createElement("img");
+				img.src = e.target.result;
+				//document.body.appendChild(img);
+				
+				var a = document.createElement('a');
+				var event = new MouseEvent('click');
+    
+				a.download = '123';
+				a.href = img.src;
+    
+				a.dispatchEvent(event);
+			}			
+        }
+
+		var i = 0;
+		
+		
+		function myviewershot(){
+			if (i < 56){
+				var pos = oViewer.navigation.getPosition();
+				var yaw = 20*parseInt(i/17);
+				var pitch = 15*(i%7-3);
+				var tarUp = calTargetUp (pos.x,pos.y,pos.z,yaw,pitch);
+
+				var Tar = new THREE.Vector3(tarUp.TarX,tarUp.TarY,tarUp.TarZ);
+				var Up = new THREE.Vector3(tarUp.CamUpX,tarUp.CamUpY,tarUp.CamUpZ);
+
+				setTimeout(function (){								
+					oViewer.navigation.setTarget(Tar);
+					oViewer.navigation.setCameraUpVector(Up);
+					oViewer.getScreenShot(0,0,preView);
+					console.log(pos.x+","+pos.y+","+pos.z+","+yaw+","+pitch)
+					i = i+1;
+					myviewershot();
+				},2000);
+			}			
+			
+			else {
+				i = 0;
+			}
+		}	
+
+		function shot(){
+			oViewer.getScreenShot(0,0,preView);
+		}
+
+		function circleshot(){
+			var PosX = parseFloat(document.getElementById("posx").value);
+			var PosY = parseFloat(document.getElementById("posy").value);
+			var PosZ = parseFloat(document.getElementById("posz").value);
+			var yaw  = parseFloat(document.getElementById("yaw").value);
+			var pitch = parseFloat(document.getElementById("pitch").value);
+
+			var j = 0;
+			navCyc(PosX,PosY,PosZ,yaw,pitch,j);
+		}
+
+		function navCyc(PosX,PosY,PosZ,yaw,pitch,j){
+			if (j < 101){
+				var tarUp = calTargetUp (3.281*PosX,3.281*PosY,3.281*PosZ,yaw,pitch);
+				const Pos = new THREE.Vector3(3.281*PosX,3.281*PosY,3.281*PosZ);
+				const Tar = new THREE.Vector3(tarUp.TarX,tarUp.TarY,tarUp.TarZ);
+				const Up = new THREE.Vector3(tarUp.CamUpX,tarUp.CamUpY,tarUp.CamUpZ);										
+				oViewer.navigation.setPosition(Pos);
+				oViewer.navigation.setTarget(Tar);
+				oViewer.navigation.setCameraUpVector(Up);
+
+				setTimeout(function (){						
+					oViewer.getScreenShot(0,0,preView);
+					j = j+1;
+					yaw = yaw+3.6;
+					navCyc(PosX,PosY,PosZ,yaw,pitch,j);
+				},3000);
+			}			
+			
+			else {
+				j = 0;
+			}
+		}
+
+		// Retrieve image capture parameters and 2d pixel coordinates
+		function obtParam(reID,callback) {
+		    var xhr=new XMLHttpRequest();
+			var reID=reID;		
+            xhr.open("GET","http://147.8.147.135:1337/?reID="+reID,true);
+            xhr.onreadystatechange=function(){
+                if(xhr.readyState==4){
+                    if(xhr.status==200){
+                        //document.getElementById("res").innerHTML=xhr.responseText;
+                        var myRes=xhr.responseText;			
+						if (myRes != "finished"){
+							var myRes_obj=eval("("+myRes+")");//使用eval函数将取回来的文本字串，转为相应的对象,在此为json                                                
+							//var roarData=new Array();	
+							var imgID = myRes_obj.imgID;
+							var posX = myRes_obj.posX;
+							var posY = myRes_obj.posY;
+							var posZ = myRes_obj.posZ;
+							var yaw = myRes_obj.yaw;
+							var pitch = myRes_obj.pitch;
+							var focal  = myRes_obj.focal;
+							var pixelX = myRes_obj.pixelX;
+							var pixelY  = myRes_obj.pixelY;
+
+							var tarUp = calTargetUp (3.281*posX,3.281*posY,3.281*posZ,yaw,pitch);
+							const Pos = new THREE.Vector3(3.281*posX,3.281*posY,3.281*posZ);
+							const Tar = new THREE.Vector3(tarUp.TarX,tarUp.TarY,tarUp.TarZ);
+							const Up = new THREE.Vector3(tarUp.CamUpX,tarUp.CamUpY,tarUp.CamUpZ);
+							console.log("imgID:"+imgID+";"+"posX:"+posX+";"+"posY:"+posY+";"+"posZ:"+posZ+";"+"yaw:"+yaw+";"+"pitch:"+pitch+";"+"focal:"+focal+";"+"pixelX:"+pixelX+";"+"pixelY:"+pixelY);
+							callback(imgID, Pos, Tar, Up, focal, pixelX, pixelY);
+						}								
+                    }
+                }
+            }
+            xhr.send(null);	  		  
+		}     
+
+		// Send 3D world coordinates to server
+		function sendWorldCoor(reID,imgID,pixelX,pixelY,worldX,worldY,worldZ,callback) {
+		    var xhr=new XMLHttpRequest();
+			var reID=reID;			
+            xhr.open("GET","http://147.8.147.135:1337/?reID="+reID+"&imgID="+imgID+"&pixelX="+pixelX+"&pixelY="+pixelY+"&worldX="+worldX+"&worldY="+worldY+"&worldZ="+worldZ,true);
+            xhr.onreadystatechange=function(){
+                if(xhr.readyState==4){
+                    if(xhr.status==200){
+                        //document.getElementById("res").innerHTML=xhr.responseText;
+                        var myRes=xhr.responseText;															
+                        callback();		
+                    }
+                }
+            }
+            xhr.send(null);	  		  
+		}  
+
+		function getCorrespondenceInBatch(){
+			obtParam(0,function (imgID, Pos, Tar, Up, focal, pixelX, pixelY){
+				oViewer.navigation.setFocalLength(focal);		
+				oViewer.navigation.setPosition(Pos);
+				oViewer.navigation.setTarget(Tar);
+				oViewer.navigation.setCameraUpVector(Up);
+				setTimeout(function (){	
+					var worldCoor;
+					for (i = 0; i < 100; i++){
+						var worldCoor1;
+						var worldCoor2;
+						var worldCoor3;
+						var worldCoor4;
+						try{worldCoor1 = oViewer.clientToWorld((pixelX+i)*4.859,pixelY*4.861,true).intersectPoint}catch(e){};
+						try{worldCoor2 = oViewer.clientToWorld((pixelX-i)*4.859,pixelY*4.861,true).intersectPoint}catch(e){};
+						try{worldCoor3 = oViewer.clientToWorld(pixelX*4.859,(pixelY+i)*4.861,true).intersectPoint}catch(e){};
+						try{worldCoor4 = oViewer.clientToWorld(pixelX*4.859,(pixelY-i)*4.861,true).intersectPoint}catch(e){};
+						if (typeof(worldCoor1) != "undefined" ){
+							worldCoor = worldCoor1;							
+							break;
+						}else if (typeof(worldCoor2) != "undefined" ){
+							worldCoor = worldCoor2;							
+							break;
+						}else if (typeof(worldCoor3) != "undefined" ){
+							worldCoor = worldCoor3;							
+							break;
+						}else if (typeof(worldCoor4) != "undefined" ){
+							worldCoor = worldCoor4;							
+							break;
+						}
+					}
+					//console.log(imgID);
+					//console.log(pixelX*4.859);
+					//console.log(pixelY*4.861);
+					sendWorldCoor(1,imgID,pixelX,pixelY,0.3048*worldCoor.x,0.3048*worldCoor.y,0.3048*worldCoor.z,function(){
+						getCorrespondenceInBatch();										
+					})
+				},3);	
+			})
+		}
+					
+		function backendPreView(url){
+			let reader = new FileReader();
+
+			getImageBlob(url, function(blob){
+				reader.readAsDataURL(blob);
+			});
+
+			reader.onload = function(e) {
+				var img_b64 = e.target.result;
+				//console.log(img_b64);
+				//var abc = "213215645";
+				img_b64 = img_b64.split(",")[1];
+				console.log(img_b64);
+				
+				var xhr=new XMLHttpRequest();
+                xhr.open("post","http://147.8.147.135:1337/",true);
+                xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+				xhr.send(img_b64);	  	
+                xhr.onreadystatechange=function(){
+                    if (xhr.readyState==4&&xhr.status==200) {
+						console.log(xhr.responseText);
+						if (xhr.responseText == "IMGsuccess") {
+							getScreenShotInBatch();
+						}
+					}
+                }
+			}			
+        }
+
+		function getScreenShotInBatch(){
+			obtParam(0,function (imgID, Pos, Tar, Up, focal, pixelX, pixelY){
+				oViewer.navigation.setFocalLength(focal);		
+				oViewer.navigation.setPosition(Pos);
+				oViewer.navigation.setTarget(Tar);
+				oViewer.navigation.setCameraUpVector(Up);
+				setTimeout(function (){	
+					oViewer.getScreenShot(Math.round(view_h),700,backendPreView);					
+				},300);	
+			})
+		}
+
+		// get hit element semantics by pixel coordinates
+		function singlePixSemant(pixX, pixY, concreteTypeList, steelTypeList, windowTypeList, doorTypeList) {
+			const myPromise = new Promise((resolve, reject) => {
+				var hitElement = oViewer.hitTest(pixX,pixY,false);
+				var pixelSemant;
+				if (hitElement !== null){
+					//console.log("yes");
+					var hitElementDBID = hitElement.dbId;
+					var hitElementProp;
+					oViewer.getProperties(hitElementDBID,function(prop){
+						hitElementProp = prop;
+						//console.log(hitElementProp);
+						if (typeof hitElementProp !== 'undefined'){
+							var hitElementNm = hitElementProp.name;
+							//console.log(hitElementNm);
+							if (typeof hitElementNm !== 'undefined'){
+								var hitElementType = hitElementNm.split(" [")[0];
+								if (concreteTypeList.includes(hitElementType)){
+									pixelSemant = "1";
+									resolve(pixelSemant);
+								}else if (steelTypeList.includes(hitElementType)){
+									pixelSemant = "2";		
+									resolve(pixelSemant);
+								}else if (windowTypeList.includes(hitElementType)){
+									pixelSemant = "3";	
+									resolve(pixelSemant);
+								}else if (doorTypeList.includes(hitElementType)){
+									pixelSemant = "4";		
+									resolve(pixelSemant);
+								}else{
+									pixelSemant = "5";		
+									resolve(pixelSemant);
+								}
+							}else{
+								pixelSemant = "0";	
+								resolve(pixelSemant);
+							}
+						}else{
+							pixelSemant = "0";	
+							resolve(pixelSemant);
+						}		
+					});																							
+				}else{
+					pixelSemant = "0";			
+					resolve(pixelSemant);
+				}					
+			})
+
+			return myPromise;
+		}
+
+		function concatPixSemant(pixX, pixY, oVWidth, oVHeight, hitElementSemant, concreteTypeList, steelTypeList, windowTypeList, doorTypeList) {	
+			var pixX = pixX;
+			var pixY = pixY;
+			singlePixSemant(pixX, pixY, concreteTypeList, steelTypeList, windowTypeList, doorTypeList, function(pixelSemant){
+				var curSemantic = pixelSemant;
+				hitElementSemant = hitElementSemant.concat(curSemantic);
+				if (pixX + 1 < oVWidth){
+					pixX = pixX + 1;
+				}else{
+					pixX = 0;
+					pixY = pixY + 1;
+				}
+				if (pixX == oVWidth && pixY == oVHeight){
+					return hitElementSemant;
+				}else{
+					concatPixSemant(pixX, pixY, oVWidth, oVHeight, hitElementSemant, concreteTypeList, steelTypeList, windowTypeList, doorTypeList);
+				}	
+			})
+		}
+
+		// Send semantic strings to server
+		function sendRawSemantic(reID,imgID,hitElementSemantStr,callback) {
+		    var xhr=new XMLHttpRequest();
+			var reID=reID;		
+			var imgID=imgID;
+			var hitElementSemantStr=hitElementSemantStr;
+			
+			var xhr=new XMLHttpRequest();
+           	xhr.open("post","http://147.8.147.135:1337/?reID="+reID+"&imgID="+imgID,true);
+			xhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+			xhr.send(hitElementSemantStr);	  	
+           	xhr.onreadystatechange=function(){
+               	if (xhr.readyState==4&&xhr.status==200) {
+					console.log(xhr.responseText);
+					if (xhr.responseText == "SemanticSuccess") {
+						callback();
+					}
+				}
+           	}              
+		}  
+
+		async function getSemanticInBatch(){
+			obtParam(0,async function (imgID, Pos, Tar, Up, focal, pixelX, pixelY){
+				var imgID=imgID;
+				console.log(imgID);
+				oViewer.navigation.setFocalLength(focal);		
+				oViewer.navigation.setPosition(Pos);
+				oViewer.navigation.setTarget(Tar);
+				oViewer.navigation.setCameraUpVector(Up);
+
+				oVWidth = Math.round(view_h);
+				oVHeight = 700;
+				var concreteTypeList = ["常规 - 200mm", "常规 - 200mm 2", "常规 - 300mm", "常规 - 150mm", "303", "300", "50", "10", "楼梯", "50mm 踏板 13mm 踢面"];
+				var steelTypeList = ["900mm 圆管", "楼梯扶手", "2021.9.23", "handrail", "圆形 - 40mm", "20", "stair", "stair 1", "栏杆"];
+				var windowTypeList = ["C", "B", "A", "C12", "C1", "C13", "C3 2", "C3 3", "C7 2", "C7 3", "0814", "0510", "C8", "C11", "C11 2", "C10 2", "C10", 
+										"C9", "C4", "C2 2", "C12", "C16", "C18", "C17", "0510", "C13", "C5", "C6", "C14", "百叶窗", "C15 A", "C15 B", "C19", "C19 2", "C19 3",
+										"C13 2", "C12 2 2", "C2 3", "C2", "C9 4", "C9 3", "C9 2", "C8 2", "C7 2 2", "C3 2 2", "C1 2", "C 2", "B 2", "A 2"];
+				var doorTypeList = ["D1", "D4", "D2", "D2 2", "D3", "D5", "D6", "D4 2"];
+				var hitElementSemant = [];
+				setTimeout(async function(){
+					for (let i = 0; i < oVHeight; i++){
+						//console.log(i);
+						for (let j = 0; j < oVWidth; j++){
+							//console.log(j);
+							await singlePixSemant(j, i, concreteTypeList, steelTypeList, windowTypeList, doorTypeList).then(pixelSemant => {
+								hitElementSemant[oVWidth*(i)+j] = pixelSemant;		
+								//console.log(pixelSemant);
+							});
+						}
+					}
+					hitElementSemantStr = hitElementSemant.join("");
+					//console.log(hitElementSemantStr);	
+					sendRawSemantic(1,imgID,hitElementSemantStr,getSemanticInBatch());
+				}, 1000);
+
+				
+
+				/*setTimeout(function(){
+					for (let i = 0; i < oVHeight; i++){
+						for (let j = 0; j < oVWidth; j++){
+							var hitElement = oViewer.hitTest(j,i,false);				
+							if (hitElement != null){
+								//console.log("yes");
+								var hitElementDBID = hitElement.dbid;
+								var hitElementProp;
+								oViewer.getProperties(hitElementDBID,function(prop){
+									hitElementProp = prop;
+									if (typeof hitElementProp !== 'undefined'){
+										var hitElementNm = hitElementProp.name;
+										if (typeof hitElementNm !== 'undefined'){
+											var hitElementType = hitElementNm.split(" [")[0];
+											if (concreteTypeList.includes(hitElementType)){
+												hitElementSemant[oVWidth*(i)+j] = "1";												
+											}else if (steelTypeList.includes(hitElementType)){
+												hitElementSemant[oVWidth*(i)+j] = "2";		
+											}else if (windowTypeList.includes(hitElementType)){
+												hitElementSemant[oVWidth*(i)+j] = "3";					
+											}else if (doorTypeList.includes(hitElementType)){
+												hitElementSemant[oVWidth*(i)+j] = "4";		
+											}else{
+												hitElementSemant[oVWidth*(i)+j] = "5";						
+											}
+										}else{
+											hitElementSemant[oVWidth*(i)+j] = "0";		
+										}
+									}else{
+										hitElementSemant[oVWidth*(i)+j] = "0";		
+									}		
+								});																							
+							}else{
+								hitElementSemant[oVWidth*(i)+j] = "0";		
+							}	
+						}
+					}
+					hitElementSemantStr = hitElementSemant.join();
+					console.log(hitElementSemantStr);	
+				}, 300);*/					
+							
+			})
+		}
+				
+		
+		// Show and visualize robot - main
+		function visualizeRobot () {
+						
+			var xhr=new XMLHttpRequest();
+			var reID=2;		
+           	xhr.open("GET","http://147.8.147.135:1337/?reID="+reID,true);
+           	xhr.onreadystatechange=function(){
+               	if(xhr.readyState==4){
+                   	if(xhr.status==200){
+                       	//document.getElementById("res").innerHTML=xhr.responseText;
+						var myRes=xhr.responseText;			
+						if (myRes != "finished"){
+							var myRes_obj=eval("("+myRes+")");//使用eval函数将取回来的文本字串，转为相应的对象,在此为json                                                
+							//var roarData=new Array();	
+							var defectPCarr = myRes_obj.defectPCarr;
+							//console.log(defectPCarr);																												
+						}								
+                   	}
+               	}
+           	}
+           	xhr.send(null);				
+		}	
+		
+		// Create robot
+		function createRobot () {		
+			console.log('waht?')
+			const geometry = new THREE.BoxGeometry( 1, 1, 0.5 );
+			const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+			const cube = new THREE.Mesh( geometry, material );			
+			console.log('waht?')
+			// adds to the viewer scene
+			oViewer.impl.scene.add(cube);
+			cube.position.set(1.8982420177734944*3.18, -3.5830173169406994*3.18, 30.5*3.58);
+			console.log('waht?')
+			// triggers refresh
+			oViewer.impl.invalidate(true);																											
+		}	
+
+		// Create robot from urdf
+		function createRobotUrdf () {	
+			console.log('waht?')
+			const manager = new LoadingManager();
+			const loader = new URDFLoader( manager );			
+			loader.load(
+				'./Resource/robot/urdf/T12/urdf/T12.URDF',                    // The path to the URDF within the package OR absolute
+				robot => {
+					oViewer.impl.scene.add( robot );		
+					oViewer.impl.invalidate(true);	
+				}
+			);																											
+		}	
+
+		// Update robot
+
+    </script>
+</head>
+
+<body>
+    <div id="project">
+        <hr />
+        <h3>LMV Extractor Node.js Sample (local view)</h3>
+        <h5>This model was extracted using <a href="http://extract.autodesk.io">http://extract.autodesk.io</a></h5>
+        <br />
+        <div>
+            <div id="viewer" class="left" style="width:936px;"></div>
+            <div id="list" class="right">
+				<!--initialize setting: Aspect and UI-->
+				Toolbar&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" id="toolHideCon1" name="ui" onclick="viewer_no_ui()"/> Hide
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" id="toolHideCon2" name="ui" onclick="viewer_ui()"/> Show
+				<br/>
+				<br/>
+				Aspect&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="viewer_width" placeholder="width" size="12" /> 
+				&nbsp;&nbsp;<input type="text" id="viewer_height" placeholder="height"" size="12" />
+				<br/>
+				<br/>
+				<input type="button" id="viewer_start" value="&nbsp;&nbsp;InitializeViewer&nbsp;&nbsp;" onclick="my_viewer_ini ()" ></input>
+				<br/>
+				<br/>
+				<br/>
+				<br/>
+
+				Projection&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" id="proCon1" value="0" name="projection" onclick="pro_perspec()"/> Perspective
+				&nbsp;&nbsp;<input type="radio" id="proCon2" value="1" name="projection" onclick="pro_ortho()"/> Orthographic
+				<br/>
+				<br/>
+				grou_shadow&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" id="shadow1" value="0" name="groundshadow" onclick="ground_shadow_on()"/> on
+				&nbsp;&nbsp;<input type="radio" id="shadow2" value="1" name="groundshadow" onclick="ground_shadow_off()"/> off
+				<br/>
+				<br/>
+				Ghost&nbsp;&nbsp;&nbsp;&nbsp;<input type="radio" id="ghost1" value="0" name="ghost" onclick="ghost_on()"/> on
+				&nbsp;&nbsp;<input type="radio" id="ghost2" value="1" name="ghost" onclick="ghost_off()"/> off
+				<br/>
+				<br/>							
+				Focallength&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="focal_length" placeholder="35mm equivalent focal length" size="16" /> &nbsp;&nbsp;		
+				<input type="button" id="foc_control" value="&nbsp;&nbsp;Apply&nbsp;&nbsp;" onclick="chang_opt_para ()" ></input>
+				<br/>
+				<br/>
+				<br/>
+				<br/>
+
+				<input type="text" id="pixelX" placeholder="ClientX" size="8" /> &nbsp;&nbsp;
+				<input type="text" id="3dX"  size="16" />
+				<br/>
+				<input type="text" id="pixelY" placeholder="ClientY" size="8" /> &nbsp;&nbsp;
+				<input type="text" id="3dY"  size="16" />
+				<br/>
+				<input type="button" id="Get3dCoor" value="&nbsp;&nbsp;Get3dCoor&nbsp;&nbsp;" onclick="getWorld3dCoor ()" ></input>&nbsp;&nbsp;&nbsp;
+				<input type="text" id="3dZ"  size="16" />
+				<br/>	
+				<br/>
+				<br/>
+				<br/>
+
+				------Navigate to point------
+				<br/>
+				<br/>
+				<input type="text" id="posx" placeholder="PosX" size="15" /> &nbsp;&nbsp;
+				<input type="text" id="yaw" placeholder="Yaw" size="15" />
+				<br/>
+				<br/>
+				<input type="text" id="posy" placeholder="PosY" size="15" /> &nbsp;&nbsp;
+				<input type="text" id="pitch" placeholder="Pitch" size="15" />
+				<br/>
+				<br/>
+				<input type="text" id="posz" placeholder="PosZ" size="15" /> &nbsp;&nbsp;
+				<input type="text" id="roll" placeholder="Roll" size="15" />
+				<br/>
+				<br/>
+				<input type="button" id="locate" value="&nbsp;&nbsp;Navigate&nbsp;&nbsp;" onclick=" myNavi ()" ></input>
+				<br/>	
+				<br/>
+				<br/>
+				<br/>
+				
+				------Hide Elements------
+				<br/>
+				<br/>
+				DBID &nbsp;&nbsp;<input type="text" id="dbid" size="25" />
+				<br/>				
+				<input type="text" id="hide" placeholder="element to be hided" size="30" />&nbsp;&nbsp
+				<input type="button" id="hidebutton" value="&nbsp;&nbsp;HIDE&nbsp;&nbsp;" onclick="hideElement ()"/>
+				<br/>
+				<input type="button" id="screenshot" value="&nbsp;&nbsp;ScreenShot&nbsp;&nbsp;" onclick="shot()"/>
+				<br/>	
+				<br/>
+				<br/>
+				<br/>
+
+				------Circle screenshot------
+				<br/>
+				<br/>
+				<input type="button" id="circleshot" value="&nbsp;&nbsp;CircleShot&nbsp;&nbsp;" onclick="circleshot()"/>
+				<br/>	
+				<br/>
+
+				------Get 2D-3D Correspondences In Batch------
+				<br/>
+				<br/>
+				<input type="button" id="getCorr" value="&nbsp;&nbsp;2D-3DCorr&nbsp;&nbsp;" onclick="getCorrespondenceInBatch()"/>
+				<br/>	
+				<br/>
+
+				------Generate BIM screenshots In Batch------
+				<br/>
+				<br/>
+				<input type="button" id="batchshot" value="&nbsp;&nbsp;BatchShot&nbsp;&nbsp;" onclick="getScreenShotInBatch()"/>
+				<br/>	
+				<br/>
+
+				------Get material semantic In Batch------
+				<br/>
+				<br/>
+				<input type="button" id="batchSemantic" value="&nbsp;&nbsp;BatSemantic&nbsp;&nbsp;" onclick="getSemanticInBatch()"/>
+				<br/>	
+				<br/>
+
+				------ Get and show defect point clouds ------
+				<br/>
+				<br/>
+				<input type="button" id="showRobButton" value="&nbsp;&nbsp;ShowRobot&nbsp;&nbsp;" onclick="createRobotUrdf()"/>
+
+			</div>
+        </div>
+        <br />
+    </div>
+
+    <div class="clear">
+        <hr />
+        <p>&#169; Copyright Autodesk. All rights reserved.</p>
+    </div>
+
+</body>
+</html>
