@@ -1,0 +1,159 @@
+{
+  "version": "1.0",
+  "urn": "dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0",
+  "type": "manifest",
+  "progress": "complete",
+  "status": "success",
+  "hasThumbnail": "true",
+  "region": "US",
+  "derivatives": [
+    {
+      "outputType": "svf",
+      "status": "success",
+      "name": "input.rvt",
+      "hasThumbnail": "true",
+      "progress": "complete",
+      "children": [
+        {
+          "type": "resource",
+          "role": "Autodesk.CloudPlatform.PropertyDatabase",
+          "status": "success",
+          "mime": "application/autodesk-db",
+          "urn": "./model.sdb",
+          "guid": "029b9048-2a10-417d-a9f0-e5b5e6ff2f94",
+          "size": 532480
+        },
+        {
+          "type": "resource",
+          "role": "Autodesk.AEC.ModelData",
+          "status": "success",
+          "mime": "application/json",
+          "urn": "./AECModelData.json",
+          "guid": "c50249cb-69cd-4ccf-b4c4-135e1b3698d6"
+        },
+        {
+          "type": "geometry",
+          "role": "3d",
+          "status": "success",
+          "name": "3d",
+          "hasThumbnail": "true",
+          "progress": "complete",
+          "guid": "51c48606-dc95-4eb2-959b-edaa0bd93713",
+          "children": [
+            {
+              "type": "view",
+              "role": "3d",
+              "status": "success",
+              "name": "3d",
+              "progress": "complete",
+              "guid": "5056dcee-e807-45a2-9bb3-0e8ce7719b18-00010ecb",
+              "camera": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+              ]
+            },
+            {
+              "type": "resource",
+              "role": "3d",
+              "mime": "application/autodesk-svf",
+              "urn": "./3d.svf",
+              "progress": "graphics",
+              "guid": "abfae365-e615-4da6-9c12-545d1e1964d8"
+            },
+            {
+              "type": "resource",
+              "role": "thumbnail",
+              "status": "success",
+              "mime": "image/png",
+              "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb100.png",
+              "resolution": [
+                100,
+                100
+              ],
+              "guid": "8a038526-b216-48c7-9da1-7e5af29dac28"
+            },
+            {
+              "type": "resource",
+              "role": "thumbnail",
+              "status": "success",
+              "mime": "image/png",
+              "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb200.png",
+              "resolution": [
+                200,
+                200
+              ],
+              "guid": "5ab0a99d-2968-43c8-b6d0-c580ab45bc27"
+            },
+            {
+              "type": "resource",
+              "role": "thumbnail",
+              "status": "success",
+              "mime": "image/png",
+              "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb400.png",
+              "resolution": [
+                400,
+                400
+              ],
+              "guid": "61192acc-d82a-46b3-b3ef-e3b6795ddf02"
+            }
+          ],
+          "viewableID": "5056dcee-e807-45a2-9bb3-0e8ce7719b18-00010ecb"
+        }
+      ]
+    },
+    {
+      "outputType": "thumbnail",
+      "status": "success",
+      "progress": "complete",
+      "children": [
+        {
+          "type": "resource",
+          "role": "thumbnail",
+          "status": "success",
+          "mime": "image/png",
+          "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb100.png",
+          "resolution": [
+            100,
+            100
+          ],
+          "guid": "c41ad7c4-2de9-45d1-a751-54bae5ca715d"
+        },
+        {
+          "type": "resource",
+          "role": "thumbnail",
+          "status": "success",
+          "mime": "image/png",
+          "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb200.png",
+          "resolution": [
+            200,
+            200
+          ],
+          "guid": "d06c56ad-1bdb-4a1f-974e-2c72a47dab53"
+        },
+        {
+          "type": "resource",
+          "role": "thumbnail",
+          "status": "success",
+          "mime": "image/png",
+          "urn": "urn:adsk.viewing:fs.file:dXJuOmFkc2sub2JqZWN0czpvcy5vYmplY3Q6YmltYW5nbGUvaW5wdXQucnZ0/thumb400.png",
+          "resolution": [
+            400,
+            400
+          ],
+          "guid": "c1543df5-c592-4a02-8f71-df810115f59f"
+        }
+      ]
+    }
+  ]
+}
